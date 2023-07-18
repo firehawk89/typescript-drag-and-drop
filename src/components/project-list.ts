@@ -1,16 +1,16 @@
-import { Component } from "./base-component.js";
+import Component from "./base-component.js";
 import { DragTarget } from "../models/drag-and-drop.js";
-import { Project, ProjectStatus } from "../models/project.js";
+import * as ProjectModel from "../models/project.js";
 import { projectState } from "../state/project-state.js";
-import { ProjectItem } from "./project-item.js";
-import { AutoBind } from "../decorators/autobind.js";
+import ProjectItem from "./project-item.js";
+import AutoBind from "../decorators/autobind.js";
 
 // ProjectList class
-export class ProjectList
+export default class ProjectList
   extends Component<HTMLDivElement, HTMLElement>
   implements DragTarget
 {
-  assignedProjects: Project[];
+  assignedProjects: ProjectModel.Project[];
 
   constructor(private type: "active" | "finished") {
     super("project-list", "app", false, `${type}-projects`);
@@ -21,12 +21,12 @@ export class ProjectList
   }
 
   configure() {
-    projectState.addListener((projects: Project[]) => {
+    projectState.addListener((projects: ProjectModel.Project[]) => {
       const relevantProjects = projects.filter((prj) => {
         if (this.type === "active") {
-          return prj.status === ProjectStatus.Active;
+          return prj.status === ProjectModel.ProjectStatus.Active;
         } else {
-          return prj.status === ProjectStatus.Finished;
+          return prj.status === ProjectModel.ProjectStatus.Finished;
         }
       });
 
@@ -80,7 +80,9 @@ export class ProjectList
   dropHandler(event: DragEvent) {
     const projectId = event.dataTransfer!.getData("text/plain");
     const projectStatus =
-      this.type === "active" ? ProjectStatus.Active : ProjectStatus.Finished;
+      this.type === "active"
+        ? ProjectModel.ProjectStatus.Active
+        : ProjectModel.ProjectStatus.Finished;
 
     projectState.moveProject(projectId, projectStatus);
   }

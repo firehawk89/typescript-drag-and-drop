@@ -1,5 +1,5 @@
 // AutoBind decorator
-export function AutoBind(_1: any, _2: string, descriptor: PropertyDescriptor) {
+export default function AutoBind(_1: any, _2: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
   const adjustedDescriptor: PropertyDescriptor = {
     configurable: true,

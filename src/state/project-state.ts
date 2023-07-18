@@ -1,63 +1,63 @@
+import { Project, ProjectStatus } from "../models/project.js";
+
 // ProjectState Singleton
-namespace App {
-  type Listener<T> = (items: T[]) => void;
+type Listener<T> = (items: T[]) => void;
 
-  class State<T> {
-    protected listeners: Listener<T>[] = [];
+class State<T> {
+  protected listeners: Listener<T>[] = [];
 
-    addListener(fn: Listener<T>) {
-      this.listeners.push(fn);
+  addListener(fn: Listener<T>) {
+    this.listeners.push(fn);
+  }
+}
+
+export class ProjectState extends State<Project> {
+  private projects: Project[] = [];
+  private static instance: ProjectState;
+
+  private constructor() {
+    super();
+  }
+
+  static getInstance() {
+    if (this.instance) {
+      return this.instance;
+    } else {
+      this.instance = new ProjectState();
+      return this.instance;
     }
   }
 
-  export class ProjectState extends State<Project> {
-    private projects: Project[] = [];
-    private static instance: ProjectState;
-
-    private constructor() {
-      super();
+  private updateListeners() {
+    for (const listenerFn of this.listeners) {
+      listenerFn(this.projects.slice()); // passing the copy of the array
     }
+  }
 
-    static getInstance() {
-      if (this.instance) {
-        return this.instance;
-      } else {
-        this.instance = new ProjectState();
-        return this.instance;
-      }
-    }
+  addProject(title: string, description: string, numOfPeople: number) {
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      numOfPeople,
+      ProjectStatus.Active
+    );
 
-    private updateListeners() {
-      for (const listenerFn of this.listeners) {
-        listenerFn(this.projects.slice()); // passing the copy of the array
-      }
-    }
+    this.projects.push(newProject);
 
-    addProject(title: string, description: string, numOfPeople: number) {
-      const newProject = new Project(
-        Math.random().toString(),
-        title,
-        description,
-        numOfPeople,
-        ProjectStatus.Active
-      );
+    this.updateListeners();
+  }
 
-      this.projects.push(newProject);
+  // switch project status
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find((project) => project.id === projectId);
+
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
 
       this.updateListeners();
     }
-
-    // switch project status
-    moveProject(projectId: string, newStatus: ProjectStatus) {
-      const project = this.projects.find((project) => project.id === projectId);
-
-      if (project && project.status !== newStatus) {
-        project.status = newStatus;
-
-        this.updateListeners();
-      }
-    }
   }
-
-  export const projectState = ProjectState.getInstance();
 }
+
+export const projectState = ProjectState.getInstance();

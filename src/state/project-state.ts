@@ -1,4 +1,4 @@
-import { Project, ProjectStatus } from "../models/project.js";
+import { Project, ProjectStatus } from "../models/project";
 
 // ProjectState Singleton
 type Listener<T> = (items: T[]) => void;
